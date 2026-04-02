@@ -1,0 +1,1 @@
+express dotenv cors bcryptjs jsonwebtoken cookie-parser mongoose cloudinary socket.io
