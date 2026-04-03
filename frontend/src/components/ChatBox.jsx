@@ -6,12 +6,8 @@ import {
   X,
   Image,
   Smile,
-  Phone,
-  Video,
-  MoreVertical,
   ChevronLeft,
   Loader2,
-  Check,
   CheckCheck,
 } from "lucide-react";
 
@@ -35,7 +31,6 @@ const MessageBubble = ({
   return (
     <div
       className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar */}
       {showAvatar ? (
         <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-0.5">
           {senderPic ? (
@@ -54,13 +49,13 @@ const MessageBubble = ({
         <div className="w-7 shrink-0" />
       )}
 
-      {/* Bubble */}
       <div
         className={`max-w-[68%] flex flex-col gap-1 ${isOwn ? "items-end" : "items-start"}`}>
-        {/* Image attachment */}
         {message.image && (
           <div
-            className={`rounded-2xl overflow-hidden border ${isOwn ? "border-violet-500/20" : "border-white/[0.07]"} max-w-[220px]`}>
+            className={`rounded-2xl overflow-hidden border ${
+              isOwn ? "border-violet-500/20" : "border-white/[0.07]"
+            } max-w-[220px]`}>
             <img
               src={message.image}
               alt="attachment"
@@ -69,7 +64,6 @@ const MessageBubble = ({
           </div>
         )}
 
-        {/* Text */}
         {message.text && (
           <div
             className={`px-4 py-2.5 rounded-2xl text-[13px] font-light leading-relaxed break-words ${
@@ -81,7 +75,6 @@ const MessageBubble = ({
           </div>
         )}
 
-        {/* Time + status */}
         <div
           className={`flex items-center gap-1 px-1 ${isOwn ? "flex-row-reverse" : ""}`}>
           <span className="text-[10px] text-white/20 font-light">
@@ -102,12 +95,16 @@ const ChatBox = () => {
     sendMessage,
     isMessagesLoading,
     setSelectUser,
+    subscribeToMsg,
+    unSubscribeFromMsg,
   } = useChatStore();
+
   const { authUser, onlineUsers } = useAuthStore();
 
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [isSending, setIsSending] = useState(false);
+
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
@@ -115,8 +112,15 @@ const ChatBox = () => {
   const isOnline = onlineUsers.includes(selectedUser?._id);
 
   useEffect(() => {
-    if (selectedUser?._id) getMessages(selectedUser._id);
-  }, [selectedUser?._id, getMessages]);
+    if (!selectedUser?._id) return;
+
+    getMessages(selectedUser._id);
+    subscribeToMsg();
+
+    return () => {
+      unSubscribeFromMsg();
+    };
+  }, [selectedUser?._id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -125,6 +129,7 @@ const ChatBox = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) return;
+
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result);
     reader.readAsDataURL(file);
@@ -132,12 +137,24 @@ const ChatBox = () => {
 
   const handleSend = async () => {
     if (!text.trim() && !imagePreview) return;
+
     setIsSending(true);
     try {
-      await sendMessage({ text: text.trim(), image: imagePreview });
+      await sendMessage({
+        text: text.trim(),
+        image: imagePreview,
+      });
+
       setText("");
       setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
     } finally {
       setIsSending(false);
     }
@@ -169,24 +186,20 @@ const ChatBox = () => {
         .chat-scroll::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.25); border-radius: 99px; }
       `}</style>
 
-      {/* 0c0b17 */}
-      <div className="font-dm flex-1 flex flex-col min-h-0 bg-[#0c0b17] overflow-hidden ">
-        {/* ── Header ── */}
+      <div className="font-dm flex-1 flex flex-col min-h-0 bg-[#0c0b17] overflow-hidden">
         <div className="px-5 py-3.5 border-b border-violet-700/15 flex items-center gap-3 bg-[#09081a]/80 backdrop-blur-sm shrink-0">
-          {/* Back button (mobile) */}
           <button
             onClick={() => setSelectUser(null)}
             className="lg:hidden w-8 h-8 flex items-center justify-center rounded-xl text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all duration-200">
             <ChevronLeft size={18} />
           </button>
 
-          {/* Avatar */}
           <div className="relative shrink-0">
             <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-violet-500/20">
-              {selectedUser?.profilePic ? (
+              {selectedUser?.profile ? (
                 <img
                   src={selectedUser.profile}
-                  alt={selectedUser.name}
+                  alt={selectedUser?.name || "user"}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -195,12 +208,12 @@ const ChatBox = () => {
                 </div>
               )}
             </div>
+
             {isOnline && (
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#09081a] rounded-full" />
             )}
           </div>
 
-          {/* Name & status */}
           <div className="flex-1 min-w-0">
             <p className="font-syne font-bold text-[14px] text-white tracking-tight truncate">
               {selectedUser?.name}
@@ -210,10 +223,8 @@ const ChatBox = () => {
               {isOnline ? "Online now" : "Offline"}
             </p>
           </div>
-
         </div>
 
-        {/* ── Messages ──space-y-3 */}
         <div className="flex-1 min-h-0 overflow-y-auto chat-scroll px-5 py-5 pb-28">
           {isMessagesLoading ? (
             <div className="flex flex-col items-center justify-center h-full gap-3">
@@ -233,9 +244,18 @@ const ChatBox = () => {
             </div>
           ) : (
             messages.map((msg, i) => {
-              const isOwn = msg.senderId === authUser?._id;
+              const isOwn = String(msg.senderId) === String(authUser?._id);
               const prevMsg = messages[i - 1];
-              const showAvatar = !isOwn && prevMsg?.senderId !== msg.senderId;
+              const showAvatar =
+                !isOwn && String(prevMsg?.senderId) !== String(msg.senderId);
+
+              console.log("authUser._id:", authUser?._id);
+              console.log("selectedUser._id:", selectedUser?._id);
+              console.log("msg.senderId:", msg.senderId);
+              console.log(
+                "isOwn:",
+                String(msg.senderId) === String(authUser?._id),
+              );
 
               return (
                 <MessageBubble
@@ -243,9 +263,7 @@ const ChatBox = () => {
                   message={msg}
                   isOwn={isOwn}
                   showAvatar={showAvatar}
-                  senderPic={
-                    isOwn ? authUser?.profile : selectedUser?.profile
-                  }
+                  senderPic={isOwn ? authUser?.profile : selectedUser?.profile}
                   senderInitial={
                     isOwn
                       ? initials(authUser?.name)
@@ -255,10 +273,10 @@ const ChatBox = () => {
               );
             })
           )}
+
           <div ref={bottomRef} />
         </div>
 
-        {/* ── Image preview + Input bar (sticky) ── */}
         <div className="sticky bottom-0 z-10">
           {imagePreview && (
             <div className="px-5 pb-3 bg-[#09081a]/80 backdrop-blur-sm">
@@ -280,15 +298,14 @@ const ChatBox = () => {
             </div>
           )}
 
-          {/* ── Input bar ── */}
           <div className="px-5 py-4 border-t border-violet-700/15 bg-[#09081a]/80 backdrop-blur-sm shrink-0">
             <div className="flex items-end gap-3">
-              {/* Attach image */}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl text-white/30 hover:text-violet-400 hover:bg-violet-600/10 border border-transparent hover:border-violet-500/20 transition-all duration-200 mb-1">
                 <Image size={16} />
               </button>
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -297,7 +314,6 @@ const ChatBox = () => {
                 onChange={handleImageChange}
               />
 
-              {/* Textarea */}
               <div className="flex-1 flex items-end gap-2 px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/[0.07] focus-within:border-violet-500/40 focus-within:bg-violet-500/[0.04] transition-all duration-200">
                 <textarea
                   ref={textareaRef}
@@ -319,7 +335,6 @@ const ChatBox = () => {
                 </button>
               </div>
 
-              {/* Send */}
               <button
                 onClick={handleSend}
                 disabled={isSending || (!text.trim() && !imagePreview)}

@@ -10,10 +10,6 @@ export const generateToken = (id, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    // In development we run on http so `secure` must be false.
-    // Use `sameSite: 'lax'` locally so the browser will send the cookie
-    // for same-site navigations and XHR from the frontend dev server.
-    // In production (non-dev) we use `sameSite: 'none'` and `secure: true`.
     secure: !isDev,
     sameSite: isDev ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7days

@@ -10,22 +10,55 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const { authUser, updateProfile, isUpdatingProfile } = useAuthStore();
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
 
+  // const handleImageChange = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  //   reader.onload = async () => {
+  //     const base64 = reader.result;
+  //     setSelectedImage(base64);
+  //     await updateProfile({ profile: base64 });
+  //   };
+  // };
+
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const base64 = reader.result;
-      setSelectedImage(base64);
-      await updateProfile({ profile: base64 });
-    };
+    try {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = async () => {
+        const base64 = reader.result;
+
+        setSelectedImage(base64);
+
+        const toastId = toast.loading("Uploading image...");
+
+        try {
+          await updateProfile({ profile: base64 });
+
+          toast.success("Profile updated successfully ✅", {
+            id: toastId,
+          });
+        } catch (error) {
+          toast.error(error.message || "Upload failed ❌", {
+            id: toastId,
+          });
+        }
+      };
+    } catch (error) {
+      toast.error("Something went wrong ❌", error.message);
+    }
   };
 
   const createdAt = authUser?.createdAt;
@@ -244,11 +277,11 @@ const ProfilePage = () => {
                 </div>
                 <div
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium ${
-                    authUser?.profilePic
+                    authUser?.profile
                       ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                       : "bg-white/[0.04] border-white/[0.08] text-white/25"
                   }`}>
-                  {authUser?.profilePic ? (
+                  {authUser?.profile ? (
                     <>
                       <Check size={10} strokeWidth={2.5} /> Uploaded
                     </>

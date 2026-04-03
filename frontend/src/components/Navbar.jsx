@@ -39,9 +39,18 @@ const Navbar = () => {
               <>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-white/[0.03] border border-white/[0.07] mr-1">
                   <div className="relative">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-700 flex items-center justify-center text-[11px] font-semibold text-white shrink-0">
-                      {authUser?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
+                    {authUser?.profile ? (
+                      <img
+                        src={authUser.profile}
+                        alt="profile"
+                        className="w-7 h-7 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-700 flex items-center justify-center text-[11px] font-semibold text-white shrink-0">
+                        {authUser?.name?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    )}
+
                     <div className="absolute -bottom-px -right-px w-[7px] h-[7px] rounded-full bg-emerald-400 border-[1.5px] border-[#07060f]" />
                   </div>
                   <span className="text-[13px] text-white/50 font-normal max-w-[90px] truncate">
@@ -54,6 +63,13 @@ const Navbar = () => {
                   className="flex items-center gap-1.5 px-3.5 py-[7px] rounded-[10px] text-[13px] text-white/45 border border-transparent hover:text-white/90 hover:bg-violet-600/10 hover:border-violet-500/25 transition-all duration-200 no-underline">
                   <User size={14} />
                   Profile
+                </Link>
+
+                <Link
+                  to="/ai"
+                  className="flex items-center gap-1.5 px-3.5 py-[7px] rounded-[10px] text-[13px] text-white/45 border border-transparent hover:text-white/90 hover:bg-violet-600/10 hover:border-violet-500/25 transition-all duration-200 no-underline">
+                  <MessageSquare size={14} />
+                  Ai 
                 </Link>
 
                 <button

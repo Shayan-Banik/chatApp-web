@@ -29,7 +29,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#07060f]">
       <Navbar />
-
+      <Toaster position="top-right" />
       {/* 🔥 THIS IS THE FIX */}
       <div className="h-[calc(100vh-58px)] overflow-hidden">
         <Routes>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-// import { useAuthStore } from "./useAuthStore";
+import { useAuthStore } from "./useAuthStore";
 
 import toast from "react-hot-toast";
 
@@ -88,6 +88,34 @@ export const useChatStore = create((set, get) => ({
       console.log("Failed to send message", error);
       toast.error("Failed to send message");
     }
+  },
+
+  subscribeToMsg: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    // prevent duplicate listeners
+    socket.off("newMessage");
+
+    socket.on("newMessage", (message) => {
+      const isMessageFromSelectedUser = message.senderId === selectedUser._id;
+
+      if (!isMessageFromSelectedUser) return;
+
+      set((state) => ({
+        messages: [...state.messages, message],
+      }));
+    });
+  },
+
+  unSubscribeFromMsg: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("newMessage");
   },
 
   setSelectUser: (selectedUser) => set({ selectedUser }),

@@ -1,6 +1,7 @@
 import userModel from "../models/user.model.js";
 import messageModel from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { io, getReceiverSocketId } from "../lib/socket.js";
 
 export const getUser = async (req, res) => {
   try {
@@ -28,8 +29,8 @@ export const getMessages = async (req, res) => {
     const messages = await messageModel
       .find({
         $or: [
-          { sender: myId, receiver: userToChatId },
-          { sender: userToChatId, receiver: myId },
+          { senderId: myId, receiverId: userToChatId },
+          { senderId: userToChatId, receiverId: myId },
         ],
       })
       .sort({ createdAt: 1 });
@@ -64,7 +65,12 @@ export const sendMessage = async (req, res) => {
       image: imageUrl,
     });
 
-    // todo socket.io implement
+    //! implement socket.io
+    const receiverSocketId = getReceiverSocketId(receiverId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json({
       message: "Message sent successfully",
