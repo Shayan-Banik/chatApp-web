@@ -350,7 +350,7 @@ const LoginPage = () => {
             <div className="divider-line" />
           </div>
 
-          {/* Social login */}
+          {/* Social login
           <div className="fade-up-6 grid grid-cols-2 gap-3">
             {[
               { name: "Google", icon: "G", color: "#EA4335" },
@@ -373,7 +373,7 @@ const LoginPage = () => {
                 </span>
               </button>
             ))}
-          </div>
+          </div> */}
 
           {/* Footer */}
           <p className="fade-up-6 text-center text-xs text-white/20 mt-10">
