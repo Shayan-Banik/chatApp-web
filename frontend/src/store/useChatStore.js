@@ -4,7 +4,9 @@ import { useAuthStore } from "./useAuthStore";
 import toast from "react-hot-toast";
 
 const BASEURL =
-  import.meta.env.MODE === "development" ? "http://localhost:8080" : "/";
+  import.meta.env.MODE === "development"
+    ? "http://localhost:8080"
+    : "https://banterbox-r98l.onrender.com";
 
 export const useChatStore = create((set, get) => ({
   messages: [],

@@ -3,7 +3,9 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const BASEURL =
-  import.meta.env.MODE === "development" ? "http://localhost:8080" : "/";
+  import.meta.env.MODE === "development"
+    ? "http://localhost:8080"
+    : "https://banterbox-r98l.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
