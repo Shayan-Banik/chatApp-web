@@ -10,7 +10,7 @@ export const generateToken = (id, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: !isDev,
+    secure: isDev ? false : true,
     sameSite: isDev ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
   });

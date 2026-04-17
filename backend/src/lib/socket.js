@@ -7,7 +7,8 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["https://banterbox-orcin.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST"],
     credentials: true,
   },
 });
